@@ -1,42 +1,20 @@
-#include "ft_malcolm.h"
+#include "../inc/ft_malcolm.h"
 
 int is_valid_ip(char *ip)
 {
-   struct sockaddr_in sa;
-    struct addrinfo *hints, *res;
-
-    int num_dots = 0;
-    int octet = 0;
-
-    for (const char *ptr = ip; *ptr; ptr++) {
-        if (isdigit(*ptr)) {
-            octet = octet * 10 + (*ptr - '0');
-            if (octet > 255) return 0;
-        } else if (*ptr == '.') {
-            num_dots++;
-            if (num_dots > 3) return 0;
-            octet = 0;
-        } else {
-            return 0; // Invalid character found
-        }
-    }
-
-    if (num_dots != 3) return 0;
-    if (inet_pton(AF_INET, ip, &(sa.sin_addr)) == 1) {
+    struct sockaddr_in sa;
+    struct hostent *hostname;
+    // struct addrinfo hints , *res;
+    if (inet_pton(AF_INET, ip, &(sa.sin_addr)) == 1)
         return 1;
+    // ft_memset(hints, 0, sizeof(hints));
+    hostname = gethostbyname(ip);
+    if (hostname == NULL)
+    {
+        printf("---here---\n");
+        return 0;
     }
-
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
-
-    int status = getaddrinfo(ip, NULL, &hints, &res);
-    if (status == 0) {
-        freeaddrinfo(res);
-        return 1;
-    } else {
-        fprintf(stderr, "Error: %s for '%s'.\n", gai_strerror(status), ip);
-    }
-    return 0;
+    return 1;
 }
 
 int is_valid_mac(char *mac)

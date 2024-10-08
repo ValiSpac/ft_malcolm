@@ -9,6 +9,9 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <signal.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <net/if.h>
 
 #define USAGE "usage: sudo ./ft_malcolm <source ip> <source mac> <target ip> <target mac> + options: -i(interface) -t(timeout) -v(verbose)"
