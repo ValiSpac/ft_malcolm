@@ -13,6 +13,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <net/if.h>
+#include <netinet/ip.h>
+#include <netinet/ether.h>
 
 #define USAGE "usage: sudo ./ft_malcolm <source ip> <source mac> <target ip> <target mac> + options: -i(interface) -t(timeout) -v(verbose)"
 #define IPADDR "Invalid ip address/hostname: "
@@ -35,7 +37,9 @@ typedef struct s_env{
     t_mac               *target_mac;
     int                 ver;
     int                 tout;
+    int                 sock_fd;
     unsigned int        interf;
+    char                *interf_str;
 }t_env;
 
 char*        parse_options(t_env *env, char **av);

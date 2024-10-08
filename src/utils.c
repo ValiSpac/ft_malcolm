@@ -123,6 +123,7 @@ char*        parse_options(t_env *env, char **av)
             env->interf = if_nametoindex(tmp);
             if (!env->interf)
                 return (ft_strjoin("Unable to find interface: ", tmp));
+            env->interf = strdup(tmp);
         }
         else if (!strncmp(av[i], "-v", 2))
             env->ver = 1;
@@ -155,5 +156,6 @@ void free_env(t_env *env)
     free(env->target_ip);
     free(env->source_mac);
     free(env->target_mac);
+    free(env->interf_str);
     free(env);
 }
