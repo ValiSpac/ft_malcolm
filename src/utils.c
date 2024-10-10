@@ -3,17 +3,26 @@
 int is_valid_ip(char *ip)
 {
     struct sockaddr_in sa;
-    struct hostent *hostname;
-    // struct addrinfo hints , *res;
+    int result;
+    // struct hostent *hostname;
+    struct addrinfo hints , *res;
     if (inet_pton(AF_INET, ip, &(sa.sin_addr)) == 1)
         return 1;
-    // ft_memset(hints, 0, sizeof(hints));
-    hostname = gethostbyname(ip);
-    if (hostname == NULL)
-    {
-        printf("---here---\n");
-        return 0;
-    }
+    ft_memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    result = getaddrinfo(ip, NULL, &hints, &res);
+    if (result != 0){
+        printf("bad hostname\n");
+        return 0;}
+    freeaddrinfo(res);
+    // hostname = gethostbyname(ip);
+    // if (hostname == NULL)
+    // {
+    //     printf("---here---\n");
+    //     return 0;
+    // }
+
     return 1;
 }
 
@@ -123,7 +132,7 @@ char*        parse_options(t_env *env, char **av)
             env->interf = if_nametoindex(tmp);
             if (!env->interf)
                 return (ft_strjoin("Unable to find interface: ", tmp));
-            env->interf = strdup(tmp);
+            env->interf_str = strdup(tmp);
         }
         else if (!strncmp(av[i], "-v", 2))
             env->ver = 1;
@@ -157,5 +166,6 @@ void free_env(t_env *env)
     free(env->source_mac);
     free(env->target_mac);
     free(env->interf_str);
+    close(env->sock_fd);
     free(env);
 }

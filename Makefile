@@ -1,6 +1,6 @@
 NAME        = ft_malcolm
 
-CFLAGS      = -Wall -Wextra -Werror -std=c99
+CFLAGS      = -Wall -Wextra -Werror
 CC          = gcc
 MAKE        = make
 

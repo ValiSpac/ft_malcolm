@@ -39,6 +39,5 @@ int main(int ac, char **av)
         return (free_env(env),printf("%s\n", opt), free(opt), -1);
     if ((tmp = setup_socket(env)) == -1)
         return (free_env(env), -1);
-    printf("%d\n%d\n%d\n%d\n", env->interf, env->tout, env->ver, env->source_mac->binary[1]);
     free_env(env);
 }
