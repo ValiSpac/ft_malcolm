@@ -53,7 +53,7 @@ int is_valid_mac(char *mac)
 char *check_args(int ac, char **av)
 {
     int i = 0;
-    if (ac > 8)
+    if (ac > 8 || ac < 5)
         return (ft_strjoin(ARGSERR, ""));
     if (!is_valid_ip(av[++i]))
         return (ft_strjoin(IPADDR, av[i]));

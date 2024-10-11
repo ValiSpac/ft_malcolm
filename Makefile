@@ -9,7 +9,7 @@ HEADERS      = inc/ft_malcolm.h
 
 INCLUDE     = -I inc -I $(LIBFT_DIR)
 
-SRCS        = src/main.c src/utils.c
+SRCS        = src/main.c src/utils.c src/malcolm.c
 OBJS        = $(patsubst %.c,%.o,$(SRCS))
 
 all: $(NAME)

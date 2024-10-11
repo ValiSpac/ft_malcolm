@@ -39,5 +39,6 @@ int main(int ac, char **av)
         return (free_env(env),printf("%s\n", opt), free(opt), -1);
     if ((tmp = setup_socket(env)) == -1)
         return (free_env(env), -1);
+    listen_for_arp(env);
     free_env(env);
 }

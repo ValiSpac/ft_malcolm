@@ -1,0 +1,15 @@
+docker network create --driver bridge arp_network
+docker run -it --network arp_network --name arp_test ubuntu /bin/bash
+
+apt update
+apt install arping, net-tools
+ifconfig eth0 | grep 'inet ' | awk '{print $2}'
+ifconfig eth0 | grep 'ether' | awk '{print $2}'
+
+arping -I eth0 <TARGET_IP>
+
+172.18.0.2
+02:42:ac:12:00:02
+
+
+sudo ./ft_malcolm localhost ab:ab:ab2ab:ab:ab 172.18.0.1 02:42:ac:12:00:02 -idocker0 -v
