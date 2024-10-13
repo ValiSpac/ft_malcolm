@@ -17,7 +17,7 @@ void display_mac(unsigned char* mac)
     printf ("\n");
 }
 
-void display_ip(unsigned int* ip)
+void display_ip(unsigned char* ip)
 {
     for (int i = 0; i < 4; i++)
     {
@@ -36,10 +36,10 @@ void print_packet(int ver, struct arp_header *arp_req, unsigned char *buffer)
     display_ip(arp_req->target_ip);
     if (ver == 1)
     {
-        printf("Sender MAC:");
+        printf("Sender MAC: ");
         display_mac(arp_req->sender_mac);
-        printf("Sender IP:");
-        display_mac(arp_req->sender_ip);
+        printf("Sender IP: ");
+        display_ip(arp_req->sender_ip);
         printf("Hardware Type: %u\n", ntohs(arp_req->hardware_type));
         printf("Protocol Type: 0x%04x\n", ntohs(arp_req->protocol_type));
         printf("Hardware Len: %u\n", arp_req->hardware_len);
@@ -48,7 +48,7 @@ void print_packet(int ver, struct arp_header *arp_req, unsigned char *buffer)
         printf("Raw Packet Data\n");
         for (long unsigned i = 0; i < sizeof(buffer); i++)
         {
-            printf("%02x", buffer[i]);
+            printf("%02x ", buffer[i]);
             if ((i + 1) % 16 == 0)
                 printf("\n");
         }
@@ -69,7 +69,6 @@ void listen_for_arp(t_env *env)
         int packet = recvfrom(env->sock_fd, buffer, BUFFER_SIZE, 0, &saddr, &saddr_len);
         if (packet < 0)
         {
-        printf("---_-_-_-\n");
             if (errno == EAGAIN || errno == EAGAIN)
                 continue;
             else
@@ -78,18 +77,20 @@ void listen_for_arp(t_env *env)
         struct ethhdr *eth = (struct ethhdr *)buffer;
         if (ntohs(eth->h_proto) == ETH_P_ARP)
         {
-            printf("---_-_-_-2\n");
             struct arp_header *arp_req = (struct arp_header *)(buffer + sizeof(struct ethhdr));
-            // display_ip(arp_req->target_ip);
-            // display_ip(&env->source_ip->sin_addr.s_addr);
             if (ntohs(arp_req->opcode) == ARPOP_REQUEST)
-                if (ft_memcmp(arp_req->target_ip, &env->source_ip->sin_addr.s_addr, 4) == 0)
+                if (ft_memcmp(arp_req->sender_ip, &env->target_ip->sin_addr.s_addr, 4) == 0)
                 {
-                    printf("---_-_-_-3\n");
                     printf("An ARP request has been brodcast\n");
                     print_packet(env->ver, arp_req, buffer);
+                    break;
                 }
-
         }
     }
+}
+
+void send_arp(t_env *env, struct arp_header *arp_req)
+{
+    unsigned int packet[42];
+    struct ethhdr *eth = (struct ethhdr *)packet;
 }

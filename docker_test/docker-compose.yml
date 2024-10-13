@@ -1,0 +1,17 @@
+---
+services:
+  arp_test:
+    container_name: arp_test
+    networks:
+      - arp_network
+    build:
+      context: arp_test
+      args:
+        TARGET_IP: ${TARGET_IP}
+    restart: on-failure
+    env_file: .env
+    command: ["/usr/sbin/arping", "-I", "eth0", "${TARGET_IP}"]
+
+networks:
+  arp_network:
+    driver: bridge
