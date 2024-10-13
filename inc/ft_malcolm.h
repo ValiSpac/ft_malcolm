@@ -12,10 +12,14 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <net/ethernet.h>
 #include <net/if.h>
 #include <netinet/ip.h>
 #include <netinet/ether.h>
 #include <errno.h>
+
+#include <linux/if_packet.h>
+#include <linux/if_ether.h>
 
 #define USAGE "usage: sudo ./ft_malcolm <source ip> <source mac> <target ip> <target mac> + options: -i(interface) -t(timeout) -v(verbose)"
 #define IPADDR "Invalid ip address/hostname: "

