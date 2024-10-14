@@ -93,13 +93,13 @@ void listen_for_arp(t_env *env)
 
 void send_arp(t_env *env, struct arp_header *arp_req)
 {
-    unsigned int packet[42];
+    unsigned char packet[42] = {0};
     struct ethhdr *eth = (struct ethhdr *)packet;
-    struct arp_header *arp_reply = (struct arp_header *)(packet + sizeof(struct ethhdr));
+    struct arp_header *arp_reply = (struct arp_header *)(packet + 14);
 
     ft_memcpy(eth->h_source, env->source_mac->str, ETH_ALEN);
     ft_memcpy(eth->h_dest, arp_req->sender_mac, ETH_ALEN);
-    eth->h_proto = htons(ETH_P_RARP);
+    eth->h_proto = htons(ETH_P_ARP);
 
     arp_reply->hardware_type = htons(ARPHRD_ETHER);
     arp_reply->protocol_type = htons(ETH_P_IP);
@@ -110,7 +110,7 @@ void send_arp(t_env *env, struct arp_header *arp_req)
     ft_memcpy(arp_reply->sender_mac, env->source_mac->str, ETH_ALEN);
     ft_memcpy(arp_reply->sender_ip, &env->source_ip->sin_addr, 4);
     ft_memcpy(arp_reply->target_mac, arp_req->sender_mac, ETH_ALEN);
-    ft_memcpy(arp_reply->target_ip, arp_req->sender_ip, 4);
+    ft_memcpy(arp_reply->target_ip, &env->source_ip->sin_addr, 4);
 
     struct sockaddr_ll target_addr;
     ft_memset(&target_addr, 0, sizeof(target_addr));
