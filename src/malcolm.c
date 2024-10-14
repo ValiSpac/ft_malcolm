@@ -91,27 +91,49 @@ void listen_for_arp(t_env *env)
     }
 }
 
+void print_mac(const unsigned char *mac) {
+    printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
+           mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+}
+
+void print_ip(const unsigned char *ip) {
+    printf("%d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+}
+
 void send_arp(t_env *env, struct arp_header *arp_req)
 {
+    sleep(1);
     unsigned char packet[42] = {0};
     struct ethhdr *eth = (struct ethhdr *)packet;
-    struct arp_header *arp_reply = (struct arp_header *)(packet + 14);
-
-    ft_memcpy(eth->h_source, env->source_mac->str, ETH_ALEN);
     ft_memcpy(eth->h_dest, arp_req->sender_mac, ETH_ALEN);
+    ft_memcpy(eth->h_source, env->source_mac->binary, ETH_ALEN);
     eth->h_proto = htons(ETH_P_ARP);
 
+    struct arp_header *arp_reply = (struct arp_header *)(packet + 14);
     arp_reply->hardware_type = htons(ARPHRD_ETHER);
     arp_reply->protocol_type = htons(ETH_P_IP);
     arp_reply->hardware_len = ETH_ALEN;
     arp_reply->protocol_len = 4;
     arp_reply->opcode = htons(2);
 
-    ft_memcpy(arp_reply->sender_mac, env->source_mac->str, ETH_ALEN);
-    ft_memcpy(arp_reply->sender_ip, &env->source_ip->sin_addr, 4);
-    ft_memcpy(arp_reply->target_mac, arp_req->sender_mac, ETH_ALEN);
-    ft_memcpy(arp_reply->target_ip, &env->source_ip->sin_addr, 4);
+    ft_memcpy(arp_reply->sender_mac, env->source_mac->binary, ETH_ALEN);
+    ft_memcpy(arp_reply->sender_ip, &env->source_ip->sin_addr.s_addr, 4);
 
+    ft_memcpy(arp_reply->target_mac, arp_req->sender_mac, ETH_ALEN);
+    ft_memcpy(arp_reply->target_ip, &arp_req->sender_ip, 4);
+
+printf("\n\n\n\n\nETHERNET source MAC: ");
+print_mac(eth->h_source);
+
+printf("ETEHRNET dest: ");
+print_mac(eth->h_dest);
+
+printf("Target MAC: ");
+print_mac(arp_reply->target_mac);
+
+printf("Target IP: ");
+print_ip(arp_reply->target_ip);
+printf("\n\n\n\n");
     struct sockaddr_ll target_addr;
     ft_memset(&target_addr, 0, sizeof(target_addr));
     target_addr.sll_family = AF_PACKET;

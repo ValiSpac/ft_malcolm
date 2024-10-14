@@ -3,27 +3,19 @@
 int is_valid_ip(char *ip)
 {
     struct sockaddr_in sa;
-    int result;
-    // struct hostent *hostname;
-    struct addrinfo hints , *res;
+    //int result;
+    //struct addrinfo hints , *res;
     if (inet_pton(AF_INET, ip, &(sa.sin_addr)) == 1)
         return 1;
-    ft_memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    result = getaddrinfo(ip, NULL, &hints, &res);
-    if (result != 0){
-        printf("bad hostname\n");
-        return 0;}
-    freeaddrinfo(res);
-    // hostname = gethostbyname(ip);
-    // if (hostname == NULL)
-    // {
-    //     printf("---here---\n");
-    //     return 0;
-    // }
-
-    return 1;
+    //ft_memset(&hints, 0, sizeof(hints));
+    //hints.ai_family = AF_INET;
+    //hints.ai_socktype = SOCK_STREAM;
+    //result = getaddrinfo(ip, NULL, &hints, &res);
+    //if (result != 0){
+    //    printf("bad hostname\n");
+    //    return 0;}
+    //freeaddrinfo(res);
+    return 0;
 }
 
 int is_valid_mac(char *mac)

@@ -1,4 +1,7 @@
 #!/bin/sh
+sysctl -w net.ipv4.conf.all.arp_ignore=0
+sysctl -w net.ipv4.conf.all.arp_accept=1
+
 echo "IP address of the docker is:"
 ifconfig eth0 | grep 'inet ' | awk '{print $2}'
 
