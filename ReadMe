@@ -1,9 +1,11 @@
 sudo systemctl start docker
 sudo systemctl enable docker
 
-sudo ./ft_malcolm localhost ab:ab:ab2ab:ab:ab 172.18.0.1 02:42:ac:12:00:02 -ibr-b9db8edda527 -v
+sudo ./ft_malcolm localhost ab:ab:ab:ab:ab:ab 172.18.0.55 02:42:ac:12:00:02 -ibr-1b74f4745bb2 -v
 
 sudo docker image rm $(sudo docker images -q)
 
 172.18.0.2
 02:42:ac:12:00:02
+
+br-1b74f4745bb2
