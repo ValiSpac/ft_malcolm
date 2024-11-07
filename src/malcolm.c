@@ -93,7 +93,7 @@ void listen_for_arp(t_env *env)
 
 void send_arp(t_env *env, struct arp_header *arp_req)
 {
-    unsigned char packet[60] = {0};
+    unsigned char packet[54] = {0};
     struct ethhdr *eth = (struct ethhdr *)packet;
     struct arp_header *arp_reply = (struct arp_header *)(packet + sizeof(struct ethhdr));
 
@@ -122,12 +122,12 @@ void send_arp(t_env *env, struct arp_header *arp_req)
     target_addr.sll_halen = ETH_ALEN;
     ft_memcpy(target_addr.sll_addr, arp_req->sender_mac, ETH_ALEN);
 
-    printf("Ethernet Header:\n");
+printf("Ethernet Header:\n");
 printf("Dest MAC: ");
 for (int i = 0; i < 6; i++) printf("%02x:", eth->h_dest[i]);
 printf("\nSource MAC: ");
 for (int i = 0; i < 6; i++) printf("%02x:", eth->h_source[i]);
-printf("\nEthernet Type: %04x\n", eth->h_proto);
+printf("\nEthertype: %04x\n", ntohs(eth->h_proto));
 
 printf("\nARP Header:\n");
 printf("Hardware Type: %04x\n", ntohs(arp_reply->hardware_type));
@@ -151,7 +151,7 @@ printf("\n");
     printf("\n");
 
 
-    if (sendto(env->sock_fd, packet, 42, 0, (struct sockaddr*)&target_addr, sizeof(target_addr)) < 0)
+    if (sendto(env->sock_fd, packet, 44, 0, (struct sockaddr*)&target_addr, sizeof(target_addr)) < 0)
         dprintf(2, "Failed to send ARP request %d!\n", errno);
     else
         printf("Sent spoofed reply to %s, check ARP table\n", inet_ntoa(*(struct in_addr *)arp_req->sender_ip));
