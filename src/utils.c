@@ -4,7 +4,6 @@ int is_valid_ip(char *ip)
 {
     struct sockaddr_in sa;
     int result;
-    // struct hostent *hostname;
     struct addrinfo hints , *res;
     if (inet_pton(AF_INET, ip, &(sa.sin_addr)) == 1)
         return 1;
@@ -16,13 +15,6 @@ int is_valid_ip(char *ip)
         printf("bad hostname\n");
         return 0;}
     freeaddrinfo(res);
-    // hostname = gethostbyname(ip);
-    // if (hostname == NULL)
-    // {
-    //     printf("---here---\n");
-    //     return 0;
-    // }
-
     return 1;
 }
 
@@ -145,7 +137,7 @@ char*        parse_options(t_env *env, char **av)
                     return (ft_strjoin("Invalid timeout option: ", av[i] + 2));
                 tmp++;
             }
-            env->tout = atoi(av[i] + 2);
+            env->tout = ft_atoi(av[i] + 2);
         }
         else
         {
