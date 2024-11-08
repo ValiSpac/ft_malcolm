@@ -81,7 +81,8 @@ void listen_for_arp(t_env *env)
         {
             struct arp_header *arp_req = (struct arp_header *)(buffer + sizeof(struct ethhdr));
             if (ntohs(arp_req->opcode) == ARPOP_REQUEST)
-                if (ft_memcmp(arp_req->target_ip, &env->target_ip->sin_addr.s_addr, 4) == 0)
+                if (ft_memcmp(arp_req->sender_ip, &env->target_ip->sin_addr.s_addr, 4) == 0 &&
+                    ft_memcmp(arp_req->target_ip, &env->source_ip->sin_addr.s_addr, 4) == 0)
                 {
                     printf("An ARP request has been brodcast\n");
                     print_packet(env->ver, arp_req, buffer);
@@ -93,7 +94,7 @@ void listen_for_arp(t_env *env)
 
 void send_arp(t_env *env, struct arp_header *arp_req)
 {
-    unsigned char packet[58];
+    unsigned char packet[42];
     ft_memset(packet, 0, sizeof(packet));
 
     struct ethhdr *eth = (void *)packet;
@@ -119,43 +120,42 @@ void send_arp(t_env *env, struct arp_header *arp_req)
     target_addr.sll_protocol= htons(ETH_P_ARP);
     target_addr.sll_ifindex = env->interf;
     target_addr.sll_hatype = htons(ARPHRD_ETHER);
-    // target_addr.sll_pkttype = PACKET_BROADCAST;
-        // target_addr.sll_halen = ETH_ALEN;
-    //////////
-    printf("Ethernet Header:\n");
-    printf("Dest MAC: ");
-    for (int i = 0; i < 6; i++) printf("%02x:", eth->h_dest[i]);
-    printf("\n");
-
-    printf("Source MAC: ");
-    for (int i = 0; i < 6; i++) printf("%02x:", eth->h_source[i]);
-    printf("\n");
-
-    printf("Ethertype: %04x\n", ntohs(eth->h_proto));
-
-    printf("\nARP Header:\n");
-    printf("Hardware Type: %04x\n", ntohs(arp_reply->hardware_type));
-    printf("Protocol Type: %04x\n", ntohs(arp_reply->protocol_type));
-    printf("Opcode: %04x\n", ntohs(arp_reply->opcode));
-
-    printf("Sender MAC: ");
-    for (int i = 0; i < 6; i++) printf("%02x:", arp_reply->sender_mac[i]);
-    printf("\n");
-
-    printf("Sender IP: ");
-    for (int i = 0; i < 4; i++) printf("%02x:", arp_reply->sender_ip[i]);
-    printf("\n");
-
-    printf("Target MAC: ");
-    for (int i = 0; i < 6; i++) printf("%02x:", arp_reply->target_mac[i]);
-    printf("\n");
-
-    printf("Target IP: ");
-    for (int i = 0; i < 4; i++) printf("%02x:", arp_reply->target_ip[i]);
-    printf("\n");
-    //////////////
-
     ft_memcpy(target_addr.sll_addr, arp_req->sender_mac, ETH_ALEN);
+
+    if (env->ver == 1)
+    {
+        printf("\nEthernet Header:\n");
+        printf("Dest MAC: ");
+        for (int i = 0; i < 6; i++) printf("%02x:", eth->h_dest[i]);
+        printf("\n");
+
+        printf("Source MAC: ");
+        for (int i = 0; i < 6; i++) printf("%02x:", eth->h_source[i]);
+        printf("\n");
+
+        printf("Ethertype: %04x\n", ntohs(eth->h_proto));
+
+        printf("\nARP Header:\n");
+        printf("Hardware Type: %04x\n", ntohs(arp_reply->hardware_type));
+        printf("Protocol Type: %04x\n", ntohs(arp_reply->protocol_type));
+        printf("Opcode: %04x\n", ntohs(arp_reply->opcode));
+
+        printf("Sender MAC: ");
+        for (int i = 0; i < 6; i++) printf("%02x:", arp_reply->sender_mac[i]);
+        printf("\n");
+
+        printf("Sender IP: ");
+        for (int i = 0; i < 4; i++) printf("%02x:", arp_reply->sender_ip[i]);
+        printf("\n");
+
+        printf("Target MAC: ");
+        for (int i = 0; i < 6; i++) printf("%02x:", arp_reply->target_mac[i]);
+        printf("\n");
+
+        printf("Target IP: ");
+        for (int i = 0; i < 4; i++) printf("%02x:", arp_reply->target_ip[i]);
+        printf("\n");
+    }
 
     if (sendto(env->sock_fd, &packet, sizeof(packet), 0, (struct sockaddr*)&target_addr, sizeof(target_addr)) < 0)
         dprintf(2, "Failed to send ARP request %d!\n", errno);
