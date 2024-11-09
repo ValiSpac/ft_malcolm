@@ -104,6 +104,10 @@ struct sockaddr_in* get_ip(char *ip_str)
 char*        parse_options(t_env *env, char **av)
 {
     int i = 0;
+    env->tout = 0;
+    env->ver = 0;
+    env->sock_fd = 0;
+    env->interf = 0;
     env->source_ip = get_ip(av[++i]);
     if (env->source_ip == NULL)
         return (ft_strjoin( PROBIP, av[i]));
@@ -139,15 +143,11 @@ char*        parse_options(t_env *env, char **av)
             }
             env->tout = ft_atoi(av[i] + 2);
         }
-        else
-        {
-            env->interf = if_nametoindex("eth0");
-            if (!env->interf)
-                return (ft_strjoin("Unable to find default interface: eth0 (use -i option)", ""));
-            env->tout = 0;
-            env->ver = 0;
-        }
     }
+    if (!env->interf)
+        env->interf = if_nametoindex("eth0");
+    if (!env->interf)
+        return (ft_strjoin("Unable to find default interface: eth0 (use -i option)", ""));
     return NULL;
 }
 
@@ -157,7 +157,9 @@ void free_env(t_env *env)
     free(env->target_ip);
     free(env->source_mac);
     free(env->target_mac);
-    free(env->interf_str);
-    close(env->sock_fd);
+    if (env->interf_str)
+        free(env->interf_str);
+    if (env->sock_fd)
+        close(env->sock_fd);
     free(env);
 }
