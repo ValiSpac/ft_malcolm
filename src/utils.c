@@ -5,13 +5,16 @@ int is_valid_ip(char *ip)
     struct sockaddr_in sa;
     int result;
     struct addrinfo hints , *res;
+    size_t i = 0;
+    while (i < ft_strlen(ip) && (ft_isdigit(ip[i]) || ip[i] == '.'))
+        i++;
     if (inet_pton(AF_INET, ip, &(sa.sin_addr)) == 1)
-        return 1;
+            return 1;
     ft_memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     result = getaddrinfo(ip, NULL, &hints, &res);
-    if (result != 0){
+    if (result != 0 || i == ft_strlen(ip)){
         printf("bad hostname\n");
         return 0;}
     freeaddrinfo(res);
@@ -24,12 +27,13 @@ int is_valid_mac(char *mac)
         return (0);
     char **mac_str = ft_split(mac, ':');
     int i = 0, j = 0;
+    char *hex = "0123456789abcdefABCDEF";
     while (mac_str[i])
     {
         j = 0;
         while (mac_str[i][j])
         {
-            if (!ft_isalnum(mac_str[i][j]))
+            if (!ft_strchr(hex, mac_str[i][j]))
             {
                 ft_split_free(mac_str);
                 return (0);
@@ -104,7 +108,7 @@ struct sockaddr_in* get_ip(char *ip_str)
 char*        parse_options(t_env *env, char **av)
 {
     int i = 0;
-    env->tout = 0;
+    env->tout = 999;
     env->ver = 0;
     env->sock_fd = 0;
     env->interf = 0;
