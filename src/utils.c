@@ -108,7 +108,7 @@ struct sockaddr_in* get_ip(char *ip_str)
 char*        parse_options(t_env *env, char **av)
 {
     int i = 0;
-    env->tout = 999;
+    env->tout = 0;
     env->ver = 0;
     env->sock_fd = 0;
     env->interf = 0;
@@ -136,7 +136,7 @@ char*        parse_options(t_env *env, char **av)
         }
         else if (!strncmp(av[i], "-v", 2))
             env->ver = 1;
-        else if (!strncmp(av[i], "-t", 2))
+        else if (!strncmp(av[i], "-t", 2) && ft_strlen(av[i]) > 2)
         {
             char *tmp = av[i] + 2;
             while (*tmp)
