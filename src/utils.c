@@ -108,7 +108,7 @@ struct sockaddr_in* get_ip(char *ip_str)
 char*        parse_options(t_env *env, char **av)
 {
     int i = 0;
-    env->tout = 0;
+    env->tout = 999;
     env->ver = 0;
     env->sock_fd = 0;
     env->interf = 0;
